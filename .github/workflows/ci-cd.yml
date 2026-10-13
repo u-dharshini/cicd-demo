@@ -1,0 +1,42 @@
+
+name: Basic CI-CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build application
+        run: python -m compileall -q app.py test_app.py
+
+      - name: Install testing tool
+        run: python -m pip install pytest
+
+      - name: Run tests
+        run: python -m pytest -v
+
+      - name: Deploy application
+        run: |
+          mkdir -p deploy
+          cp app.py deploy/
+          echo "Deployment completed successfully."
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-application
+          path: deploy/
